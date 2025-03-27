@@ -1,37 +1,21 @@
-package ru.yandex.practicum.filmorate.model;
+package ru.yandex.practicum.filmorate.Dto;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import ru.yandex.practicum.filmorate.annotation.DurationPositive;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Objects;
 
-public class Film {
+public class FilmDto {
     private Integer id;
-
-    @NotNull(message = "Название фильма не указано!")
-    @NotEmpty(message = "Передано пустое название фильма!")
     private String name;
 
     @Size(max = 200, message = "Количество символов превышает максимальное значение: 200!")
     private String description;
-    @Past(message = "Дата релиза не должна быть указана в будущем времени")
     private LocalDate releaseDate;
 
-    @DurationPositive(message = "Укажите положительное число!")
-    private Duration duration;
-
-    public Film(Integer id, String name, String description, LocalDate releaseDate, Duration duration) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-    }
+    @Positive(message = "Укажите положительное число!")
+    private Long duration;
 
     public Integer getId() {
         return id;
@@ -65,11 +49,11 @@ public class Film {
         this.releaseDate = releaseDate;
     }
 
-    public Duration getDuration() {
+    public Long getDuration() {
         return duration;
     }
 
-    public void setDuration(Duration duration) {
+    public void setDuration(Long duration) {
         this.duration = duration;
     }
 
@@ -77,8 +61,8 @@ public class Film {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Film film = (Film) o;
-        return Objects.equals(id, film.id);
+        FilmDto filmDto = (FilmDto) o;
+        return Objects.equals(id, filmDto.id);
     }
 
     @Override
@@ -88,7 +72,7 @@ public class Film {
 
     @Override
     public String toString() {
-        return "Film{" +
+        return "FilmDto{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
