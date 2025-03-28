@@ -4,9 +4,9 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.Exception.ValidationExceptionNotFound;
+import ru.yandex.practicum.filmorate.exception.BadRequestException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.Dto.UserDto;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,7 +23,7 @@ public class UserController {
     public Collection<User> getUsers() {
         if (users.values().isEmpty()) {
             log.warn("Ошибка валидации, список пользователей пуст!");
-            throw new ValidationExceptionNotFound("Список пользователей пуст");
+            throw new NotFoundException("Список пользователей пуст");
         }
         log.info("Получен список пользователей.");
         return users.values();
@@ -41,31 +41,31 @@ public class UserController {
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody UserDto userDto) {
-        Integer id = userDto.getId();
+    public User updateUser(@Valid @RequestBody User user) {
+        Integer id = user.getId();
         if (id == null) {
             log.error("Не указан id при запросе на обновление пользователя");
-            throw new ValidationExceptionNotFound("Id должен быть указан");
+            throw new BadRequestException("Id должен быть указан");
         }
         if (!users.containsKey(id)) {
             log.error("По переданному id {} пользователь не найден.", id);
-            throw new ValidationExceptionNotFound(String.format("По переданному id: %d, пользователь не обнаружен",id));
+            throw new NotFoundException(String.format("По переданному id: %d, пользователь не обнаружен",id));
         }
         User newUser = users.get(id);
-        if (userDto.getEmail() != null) {
-            newUser.setEmail(userDto.getEmail());
+        if (user.getEmail() != null) {
+            newUser.setEmail(user.getEmail());
         }
-        if (userDto.getLogin() != null) {
-            newUser.setLogin(userDto.getLogin());
+        if (user.getLogin() != null) {
+            newUser.setLogin(user.getLogin());
         }
-        if (userDto.getName() != null) {
-            newUser.setName(userDto.getName());
+        if (user.getName() != null) {
+            newUser.setName(user.getName());
         }
-        if (userDto.getBirthday() != null) {
-            newUser.setBirthday(userDto.getBirthday());
+        if (user.getBirthday() != null) {
+            newUser.setBirthday(user.getBirthday());
         }
         log.info("Пользователь с id {} обновлен", id);
-        users.put(userDto.getId(), newUser);
+        users.put(user.getId(), newUser);
         return newUser;
     }
 

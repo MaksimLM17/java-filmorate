@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.Exception;
+package ru.yandex.practicum.filmorate.exception;
 
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
@@ -15,13 +15,13 @@ public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler
-    public ResponseEntity<ErrorResponse> handleValidationExceptionNotFound(ValidationExceptionNotFound e) {
+    public ResponseEntity<ErrorResponse> handleValidationExceptionNotFound(NotFoundException e) {
         ErrorResponse response = new ErrorResponse("Ошибка валидации", e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     @ExceptionHandler
-    public ResponseEntity<ErrorResponse> handleValidationExceptionBadRequest(ValidationExceptionBadRequest e) {
+    public ResponseEntity<ErrorResponse> handleValidationExceptionBadRequest(BadRequestException e) {
         ErrorResponse response = new ErrorResponse("Ошибка валидации", e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
