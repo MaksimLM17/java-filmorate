@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -20,29 +21,32 @@ public class UserController {
     private final Map<Integer, User> users = new HashMap<>();
 
     @GetMapping
-    public Collection<User> getUsers() {
+    public Collection<UserDto> getUsers() {
         if (users.values().isEmpty()) {
             log.warn("Ошибка валидации, список пользователей пуст!");
             throw new NotFoundException("Список пользователей пуст");
         }
         log.info("Получен список пользователей.");
-        return users.values();
+        return users.values().stream()
+                .map(this::convertToDto)
+                .toList();
     }
 
     @PostMapping
-    public User addUser(@Valid @RequestBody User user) {
+    public UserDto createUserDto(@Valid @RequestBody UserDto userDto) {
+        User user = convertToEntity(userDto);
         if (user.getName() == null || user.getName().isEmpty()) {
             user.setName(user.getLogin());
         }
         user.setId(getNextId());
         users.put(user.getId(), user);
         log.info("Пользователь с именем {} добавлен", user.getName());
-        return user;
+        return convertToDto(user);
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody User user) {
-        Integer id = user.getId();
+    public UserDto updateUser(@Valid @RequestBody UserDto userDto) {
+        Integer id = userDto.getId();
         if (id == null) {
             log.error("Не указан id при запросе на обновление пользователя");
             throw new BadRequestException("Id должен быть указан");
@@ -51,22 +55,23 @@ public class UserController {
             log.error("По переданному id {} пользователь не найден.", id);
             throw new NotFoundException(String.format("По переданному id: %d, пользователь не обнаружен",id));
         }
-        User newUser = users.get(id);
-        if (user.getEmail() != null) {
-            newUser.setEmail(user.getEmail());
+        User existingUser = users.get(id);
+        User updatedUser = convertToEntity(userDto);
+        if (updatedUser.getEmail() != null) {
+            existingUser.setEmail(updatedUser.getEmail());
         }
-        if (user.getLogin() != null) {
-            newUser.setLogin(user.getLogin());
+        if (updatedUser.getLogin() != null) {
+            existingUser.setLogin(updatedUser.getLogin());
         }
-        if (user.getName() != null) {
-            newUser.setName(user.getName());
+        if (updatedUser.getName() != null) {
+            existingUser.setName(updatedUser.getName());
         }
-        if (user.getBirthday() != null) {
-            newUser.setBirthday(user.getBirthday());
+        if (updatedUser.getBirthday() != null) {
+            existingUser.setBirthday(updatedUser.getBirthday());
         }
         log.info("Пользователь с id {} обновлен", id);
-        users.put(user.getId(), newUser);
-        return newUser;
+        users.put(existingUser.getId(), existingUser);
+        return convertToDto(existingUser);
     }
 
     private int getNextId() {
@@ -75,5 +80,25 @@ public class UserController {
                 .max()
                 .orElse(0);
         return ++currentMaxId;
+    }
+
+    private UserDto convertToDto(User user) {
+        UserDto userDto = new UserDto();
+        userDto.setId(user.getId());
+        userDto.setEmail(user.getEmail());
+        userDto.setLogin(user.getLogin());
+        userDto.setName(user.getName());
+        userDto.setBirthday(user.getBirthday());
+        return userDto;
+    }
+
+    private User convertToEntity(UserDto userDto) {
+        User user = new User();
+        user.setId(userDto.getId());
+        user.setEmail(userDto.getEmail());
+        user.setLogin(userDto.getLogin());
+        user.setName(userDto.getName());
+        user.setBirthday(userDto.getBirthday());
+        return user;
     }
 }
