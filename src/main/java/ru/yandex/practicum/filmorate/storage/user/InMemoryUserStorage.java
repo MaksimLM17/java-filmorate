@@ -2,9 +2,6 @@ package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dto.UserDto;
-import ru.yandex.practicum.filmorate.exception.BadRequestException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
@@ -16,39 +13,28 @@ public class InMemoryUserStorage implements UserStorage {
     private final Map<Integer, User> users = new HashMap<>();
 
     @Override
-    public Collection<UserDto> getAll() {
-        if (users.values().isEmpty()) {
-            log.warn("Ошибка валидации, список пользователей пуст!");
-            throw new NotFoundException("Список пользователей пуст");
-        }
+    public Collection<User> getAll() {
         log.info("Получен список пользователей.");
-        return users.values().stream()
-                .map(this::convertToDto)
-                .toList();
+        return users.values();
     }
 
     @Override
-    public UserDto create(UserDto userDto) {
-        User user = convertToEntity(userDto);
-
-        setDefaultNameIfEmpty(user);
+    public User create(User user) {
         user.setId(generateNextId());
-
         users.put(user.getId(), user);
+
         log.info("Пользователь с именем {} добавлен", user.getName());
-        return convertToDto(user);
+        return user;
     }
 
     @Override
-    public UserDto update(UserDto userDto) {
-        Integer id = userDto.getId();
-        validateUserId(id);
-
-        User existingUser = users.get(id);
-        updateData(existingUser, userDto);
+    public User update(User user) {
+        Integer id = user.getId();
+        User newUser = users.get(id);
+        updateData(newUser, user);
 
         log.info("Пользователь с id {} обновлен", id);
-        return convertToDto(existingUser);
+        return newUser;
     }
 
     @Override
@@ -70,21 +56,19 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Collection<UserDto> getUsersFriends(Integer id) {
+    public Collection<User> getUsersFriends(Integer id) {
         User user = users.get(id);
         return user.getFriends().stream()
                 .map(users::get)
-                .map(this::convertToDto)
                 .toList();
     }
 
     @Override
-    public Collection<UserDto> getFriendsCommon(Integer id, Integer otherId) {
+    public Collection<User> getFriendsCommon(Integer id, Integer otherId) {
         User user = users.get(id);
         User otherUser = users.get(otherId);
         return users.values().stream()
-                .filter(friend ->  user.contains(friend.getId()) &&  otherUser.contains(friend.getId()))
-                .map(this::convertToDto)
+                .filter(friend ->  user.isFriend(friend.getId()) &&  otherUser.isFriend(friend.getId()))
                 .toList();
     }
 
@@ -100,49 +84,18 @@ public class InMemoryUserStorage implements UserStorage {
         return ++currentMaxId;
     }
 
-    private void setDefaultNameIfEmpty(User user) {
-        if (user.getName() == null || user.getName().isEmpty()) {
-            user.setName(user.getLogin());
+    private void updateData(User user, User newUser) {
+        if (newUser.getEmail() != null) {
+            user.setEmail(newUser.getEmail());
         }
-    }
-
-    private void validateUserId(Integer id) {
-        if (id == null) {
-            log.error("Не указан id при запросе на обновление пользователя");
-            throw new BadRequestException("Id должен быть указан");
+        if (newUser.getLogin() != null) {
+            user.setLogin(newUser.getLogin());
         }
-        if (!users.containsKey(id)) {
-            log.warn("По переданному id {} пользователь не найден.", id);
-            throw new NotFoundException("Пользователь не обнаружен по id: " + id);
+        if (newUser.getName() != null) {
+            user.setName(newUser.getName());
         }
-    }
-
-    private UserDto convertToDto(User user) {
-        return new UserDto(user.getId(), user.getEmail(), user.getLogin(), user.getName(), user.getBirthday());
-    }
-
-    private User convertToEntity(UserDto userDto) {
-        User user = new User();
-        user.setId(userDto.getId());
-        user.setEmail(userDto.getEmail());
-        user.setLogin(userDto.getLogin());
-        user.setName(userDto.getName());
-        user.setBirthday(userDto.getBirthday());
-        return user;
-    }
-
-    private void updateData(User existingUser, UserDto userDto) {
-        if (userDto.getEmail() != null) {
-            existingUser.setEmail(userDto.getEmail());
-        }
-        if (userDto.getLogin() != null) {
-            existingUser.setLogin(userDto.getLogin());
-        }
-        if (userDto.getName() != null) {
-            existingUser.setName(userDto.getName());
-        }
-        if (userDto.getBirthday() != null) {
-            existingUser.setBirthday(userDto.getBirthday());
+        if (newUser.getBirthday() != null) {
+            user.setBirthday(newUser.getBirthday());
         }
     }
 }

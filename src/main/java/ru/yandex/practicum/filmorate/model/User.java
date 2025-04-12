@@ -27,7 +27,7 @@ public class User {
         friends.remove(friendId);
     }
 
-    public boolean contains(Integer friendId) {
+    public boolean isFriend(Integer friendId) {
         return friends.contains(friendId);
     }
 

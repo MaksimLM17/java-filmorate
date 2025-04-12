@@ -1,38 +1,47 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
-
-    @Autowired
-    public UserService(UserStorage userStorage) {
-        this.userStorage = userStorage;
-    }
+    private final UserMapper userMapper;
 
     public Collection<UserDto> getAll() {
         log.debug("Получен запрос на получение списка пользователей!");
-        return userStorage.getAll();
+        if (userStorage.getAll().isEmpty()) {
+            log.warn("Ошибка валидации, список пользователей пуст!");
+            throw new NotFoundException("Список пользователей пуст");
+        }
+        return userStorage.getAll().stream()
+                .map(userMapper::convertToDto)
+                .toList();
     }
 
     public UserDto create(UserDto userDto) {
         log.debug("Получен запрос на создание пользователя с данными: {}", userDto);
-        return userStorage.create(userDto);
+        setDefaultNameIfEmpty(userDto);
+        User user = userMapper.convertToEntity(userDto);
+        return userMapper.convertToDto(userStorage.create(user));
     }
 
     public UserDto update(UserDto userDto) {
         log.debug("Получен запрос на обновление пользователя с данными: {}", userDto);
-        return userStorage.update(userDto);
+        validateUserId(userDto.getId());
+        User user = userMapper.convertToEntity(userDto);
+        return userMapper.convertToDto(userStorage.update(user));
     }
 
     public void addFriend(Integer id, Integer friendId) {
@@ -57,13 +66,17 @@ public class UserService {
             log.error("Не найден пользователь по id: {}", id);
             throw new NotFoundException("Пользователь с id: " + id + " не найден!");
         }
-        return userStorage.getUsersFriends(id);
+        return userStorage.getUsersFriends(id).stream()
+                .map(userMapper::convertToDto)
+                .toList();
     }
 
     public Collection<UserDto> getFriendsCommon(Integer id, Integer otherId) {
         log.debug("Получен запрос на получение общих друзей с данными id: {} и otherId: {}", id, otherId);
         checkId(id, otherId);
-        return userStorage.getFriendsCommon(id, otherId);
+        return userStorage.getFriendsCommon(id, otherId).stream()
+                .map(userMapper::convertToDto)
+                .toList();
     }
 
     private void checkId(Integer id, Integer friendId) {
@@ -78,6 +91,23 @@ public class UserService {
         if (!userStorage.checkUserId(friendId)) {
             log.error("Не найден пользователь по friendId: {}", friendId);
             throw new NotFoundException("Пользователь с id: " + friendId + " не найден!");
+        }
+    }
+
+    private void setDefaultNameIfEmpty(UserDto userDto) {
+        if (userDto.getName() == null || userDto.getName().isEmpty()) {
+            userDto.setName(userDto.getLogin());
+        }
+    }
+
+    private void validateUserId(Integer id) {
+        if (id == null) {
+            log.error("Не указан id при запросе на обновление пользователя");
+            throw new BadRequestException("Id должен быть указан");
+        }
+        if (!userStorage.checkUserId(id)) {
+            log.warn("По переданному id {} пользователь не найден.", id);
+            throw new NotFoundException("Пользователь не обнаружен по id: " + id);
         }
     }
 }
