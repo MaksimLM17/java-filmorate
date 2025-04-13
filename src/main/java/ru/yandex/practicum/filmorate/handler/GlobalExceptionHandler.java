@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
             errorMessage.append(fieldError.getField())
                     .append(": ")
                     .append(fieldError.getDefaultMessage())
-                    .append("; \n");
+                    .append("; ");
         });
         log.error("Ошибка валидации: {}", errorMessage);
         return ErrorResponse.builder().message("Ошибка валидации").details(errorMessage.toString()).build();
@@ -53,7 +53,7 @@ public class GlobalExceptionHandler {
             errorMessage.append(violation.getPropertyPath())
                     .append(": ")
                     .append(violation.getMessage())
-                    .append("; \n");
+                    .append("; ");
         });
         log.error("Ошибка валидации: {}", errorMessage);
         return ErrorResponse.builder().message("Ошибка валидации").details(errorMessage.toString()).build();

@@ -40,6 +40,8 @@ public class UserService {
     public UserDto update(UserDto userDto) {
         log.debug("Получен запрос на обновление пользователя с данными: {}", userDto);
         validateUserId(userDto.getId());
+        checkIdInStorage(userDto.getId());
+
         User user = userMapper.convertToEntity(userDto);
         return userMapper.convertToDto(userStorage.update(user));
     }
@@ -105,9 +107,12 @@ public class UserService {
             log.error("Не указан id при запросе на обновление пользователя");
             throw new BadRequestException("Id должен быть указан");
         }
+    }
+
+    private void checkIdInStorage(Integer id) {
         if (!userStorage.checkUserId(id)) {
-            log.warn("По переданному id {} пользователь не найден.", id);
-            throw new NotFoundException("Пользователь не обнаружен по id: " + id);
+            log.error("Не найден пользователь по id: {}", id);
+            throw new NotFoundException("Пользователь с id: " + id + " не найден!");
         }
     }
 }
