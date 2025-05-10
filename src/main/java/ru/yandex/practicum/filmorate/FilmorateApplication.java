@@ -13,7 +13,7 @@ public class FilmorateApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(FilmorateApplication.class, args);
 		((ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME))
-				.setLevel(Level.WARN);
+				.setLevel(Level.INFO);
 	}
 
 }
