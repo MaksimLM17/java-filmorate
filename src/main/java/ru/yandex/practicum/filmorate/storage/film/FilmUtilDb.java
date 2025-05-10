@@ -42,18 +42,13 @@ public class FilmUtilDb {
 
     protected Integer insert(Object... params) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-        try {
-            jdbcTemplate.update(con -> {
-                PreparedStatement ps = con.prepareStatement(INSERT_FILM_QUERY, Statement.RETURN_GENERATED_KEYS);
-                for (int idx = 0; idx < params.length; idx++) {
-                    ps.setObject(idx + 1, params[idx]);
-                }
-                return ps;
-            }, keyHolder);
-        } catch (Exception e) {
-            log.error("Ошибка при добавлении фильма: {}", e.getMessage());
-            throw new InternalServerException("Не удалось сохранить данные при добавлении фильма");
-        }
+        jdbcTemplate.update(con -> {
+            PreparedStatement ps = con.prepareStatement(INSERT_FILM_QUERY, Statement.RETURN_GENERATED_KEYS);
+            for (int idx = 0; idx < params.length; idx++) {
+                ps.setObject(idx + 1, params[idx]);
+            }
+            return ps;
+        }, keyHolder);
         Integer id = keyHolder.getKeyAs(Integer.class);
         if (id != null) {
             return id;
