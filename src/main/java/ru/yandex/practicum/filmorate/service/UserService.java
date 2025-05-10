@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dto.UserDto;
+import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
@@ -40,7 +40,7 @@ public class UserService {
     public UserDto update(UserDto userDto) {
         log.debug("Получен запрос на обновление пользователя с данными: {}", userDto);
         validateUserId(userDto.getId());
-        checkIdInStorage(userDto.getId());
+        checkIdInDb(userDto.getId());
 
         User user = userMapper.convertToEntity(userDto);
         return userMapper.convertToDto(userStorage.update(user));
@@ -86,6 +86,10 @@ public class UserService {
             log.error("В запросе получено некорректное значение id: {} или friendId: {}", id, friendId);
             throw new BadRequestException("Id пользователя не может быть меньше или равно нулю!");
         }
+        if (id.equals(friendId)) {
+            log.error("Пользователь пытается добавить или удалить себя");
+            throw new BadRequestException("Невозможно добавить или удалить самого себя");
+        }
         if (!userStorage.checkUserId(id)) {
             log.error("Не найден пользователь по id: {}", id);
             throw new NotFoundException("Пользователь с id: " + id + " не найден!");
@@ -109,7 +113,7 @@ public class UserService {
         }
     }
 
-    private void checkIdInStorage(Integer id) {
+    private void checkIdInDb(Integer id) {
         if (!userStorage.checkUserId(id)) {
             log.error("Не найден пользователь по id: {}", id);
             throw new NotFoundException("Пользователь с id: " + id + " не найден!");

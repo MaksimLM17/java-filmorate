@@ -3,7 +3,8 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dto.FilmDto;
+import ru.yandex.practicum.filmorate.dto.film.FilmDto;
+import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
@@ -33,19 +34,25 @@ public class FilmService {
                 .toList();
     }
 
+    public FilmDto getById(Integer id) {
+        validateFilmId(id);
+        return filmMapper.convertToDto(filmStorage.getById(id));
+    }
+
     public FilmDto create(FilmDto filmDto) {
         log.debug("Получен запрос на добавление фильма с данными: {}", filmDto);
-        filmMapper.validateDateRelease(filmDto.getReleaseDate());
+        filmMapper.validateFields(filmDto);
         Film film = filmMapper.convertToEntity(filmDto);
         return filmMapper.convertToDto(filmStorage.create(film));
     }
 
-    public FilmDto update(FilmDto filmDto) {
-        log.debug("Получен запрос на обновление фильма с данными: {}", filmDto);
-        Integer id = filmDto.getId();
+    public FilmDto update(UpdateFilmRequest request) {
+        log.debug("Получен запрос на обновление фильма с данными: {}", request);
+        Integer id = request.getId();
         validateFilmId(id);
-        Film film = filmMapper.convertToEntity(filmDto);
-        return filmMapper.convertToDto(filmStorage.update(film));
+        Film film = filmStorage.getById(request.getId());
+        Film updatedFilm = filmMapper.updateFilm(film, request);
+        return filmMapper.convertToDto(filmStorage.update(updatedFilm));
     }
 
     public void addLike(Integer id, Integer userId) {
@@ -80,16 +87,12 @@ public class FilmService {
             throw new BadRequestException("Id не может быть меньше либо равно нулю");
         }
         if (!userStorage.checkUserId(userId)) {
-            log.error("В запросе указан некорректный userId: {}", userId);
+            log.error("Пользователь с userId не найден: {}", userId);
             throw new NotFoundException(String.format("Пользователь не найден по данному %d", userId));
         }
     }
 
     private void validateFilmId(Integer id) {
-        if (id == null) {
-            log.error("Не указан id при запросе на обновление фильма");
-            throw new BadRequestException("Id должен быть указан");
-        }
         if (id <= 0) {
             log.error("В запросе указан некорректный id: {}", id);
             throw new BadRequestException("Id не может быть меньше либо равно нулю");

@@ -40,9 +40,7 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public void addFriend(Integer id, Integer friendId) {
         User user = users.get(id);
-        User userFriend = users.get(friendId);
         user.addFriend(friendId);
-        userFriend.addFriend(id);
         log.info("Пользователь с id: {}, добавил в друзья пользователя с id: {}",id, friendId);
     }
 

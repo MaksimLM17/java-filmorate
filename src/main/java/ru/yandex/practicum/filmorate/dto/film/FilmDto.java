@@ -1,18 +1,14 @@
-package ru.yandex.practicum.filmorate.dto;
+package ru.yandex.practicum.filmorate.dto.film;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.yandex.practicum.filmorate.annotation.DurationPositive;
-import ru.yandex.practicum.filmorate.serializer.DurationSerializer;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
-import java.time.Duration;
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -29,7 +25,16 @@ public class FilmDto {
     @Past(message = "Дата релиза не должна быть указана в будущем времени")
     private LocalDate releaseDate;
 
-    @DurationPositive(message = "Укажите положительное число!")
-    @JsonSerialize(using = DurationSerializer.class)
-    private Duration duration;
+    @Positive(message = "Укажите положительное число!")
+    private Integer duration;
+    private Mpa mpa;
+    private List<Genre> genres;
+
+    public boolean hasGenres() {
+        return ! (genres == null || genres.isEmpty());
+    }
+
+    public boolean hasMpa() {
+        return ! (mpa == null);
+    }
 }

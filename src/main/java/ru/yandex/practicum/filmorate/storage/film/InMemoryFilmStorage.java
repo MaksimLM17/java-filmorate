@@ -11,6 +11,7 @@ import java.util.*;
 public class InMemoryFilmStorage implements FilmStorage {
 
     private final Map<Integer, Film> films = new HashMap<>();
+    private final Map<Integer, Set<Integer>> likes = new HashMap<>();
 
     @Override
     public Collection<Film> getAll() {
@@ -35,30 +36,50 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void addLike(Integer id, Integer userId) {
-        Film film = films.get(id);
-        film.setLike(userId);
-        log.info("Фильму с id: {} поставлен лайк, пользователем: {}", id, userId);
+    public void addLike(Integer filmId, Integer userId) {
+        likes.putIfAbsent(filmId, new HashSet<>());
+        likes.get(filmId).add(userId);
+        log.info("Фильму с id: {} поставлен лайк, пользователем: {}", filmId, userId);
     }
 
     @Override
-    public void removeLike(Integer id, Integer userId) {
-        Film film = films.get(id);
-        film.removeLike(userId);
-        log.info("У фильма с id: {} удален лайк, пользователем: {}", id, userId);
+    public void removeLike(Integer filmId, Integer userId) {
+        if (likes.containsKey(filmId)) {
+            Set<Integer> userLikes = likes.get(filmId);
+            if (userLikes.contains(userId)) {
+                userLikes.remove(userId);
+                log.info("У фильма с id: {} удален лайк, пользователем: {}", filmId, userId);
+                if (userLikes.isEmpty()) {
+                    likes.remove(filmId);
+                } else {
+                    likes.remove(filmId);
+                    likes.put(filmId,userLikes);
+                }
+            }
+        }
     }
 
     @Override
     public Collection<Film> getPopularFilms(Integer count) {
-        return films.values().stream()
-                .sorted(Comparator.comparing(Film::countLikes).reversed())
-                .limit(count)
-                .toList();
+        List<Film> popularFilms = new ArrayList<>(films.values());
+
+        popularFilms.sort((film1, film2) -> {
+            int likes1 = likes.getOrDefault(film1.getId(), Collections.emptySet()).size();
+            int likes2 = likes.getOrDefault(film2.getId(), Collections.emptySet()).size();
+            return Integer.compare(likes2, likes1);
+        });
+
+        return popularFilms.stream().limit(count).toList();
     }
 
     @Override
     public boolean checkIdStorage(Integer id) {
         return films.containsKey(id);
+    }
+
+    @Override
+    public Film getById(Integer id) {
+        return films.get(id);
     }
 
     private int getNextId() {
@@ -81,6 +102,12 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
         if (newFilm.getDuration() != null) {
             film.setDuration(newFilm.getDuration());
+        }
+        if (newFilm.getGenres() != null) {
+            film.setGenres(newFilm.getGenres());
+        }
+        if (newFilm.getMpa() != null) {
+            film.setMpa(newFilm.getMpa());
         }
         return film;
     }
