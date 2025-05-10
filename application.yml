@@ -4,8 +4,8 @@ spring:
       mode: ALWAYS
   datasource:
     url: jdbc:h2:file:./db/filmorate
-    username: Maksim
-    password: 12345
+    username: sa
+    password: password
     driverClassName: org.h2.Driver
 logging:
   level:
