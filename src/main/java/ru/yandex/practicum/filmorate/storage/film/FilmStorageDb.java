@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -11,7 +11,7 @@ import java.util.Collection;
 
 
 @Repository
-@Primary
+@Qualifier("filmStorageDb")
 @Slf4j
 public class FilmStorageDb extends FilmUtilDb implements FilmStorage  {
 

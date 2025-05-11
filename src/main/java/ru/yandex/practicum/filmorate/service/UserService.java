@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
@@ -14,10 +14,14 @@ import java.util.Collection;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
     private final UserMapper userMapper;
+
+    public UserService(@Qualifier("userStorageDb") UserStorage userStorage, UserMapper userMapper) {
+        this.userStorage = userStorage;
+        this.userMapper = userMapper;
+    }
 
     public Collection<UserDto> getAll() {
         log.debug("Получен запрос на получение списка пользователей!");

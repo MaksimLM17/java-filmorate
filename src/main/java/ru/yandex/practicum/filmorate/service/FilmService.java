@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
@@ -16,11 +16,17 @@ import java.util.Collection;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
     private final FilmMapper filmMapper;
+
+    public FilmService(@Qualifier("filmStorageDb") FilmStorage filmStorage,
+                       @Qualifier("userStorageDb") UserStorage userStorage, FilmMapper filmMapper) {
+        this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
+        this.filmMapper = filmMapper;
+    }
 
     public Collection<FilmDto> getAll() {
         log.debug("Получен запрос на получение списка фильмов.");
