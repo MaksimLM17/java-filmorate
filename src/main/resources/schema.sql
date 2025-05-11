@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS "Likes", "Friends", "Users", "Genre_film", "Genres", "Mpa", "Films";
 
 CREATE TABLE "Mpa" (
   "Mpa_id" integer PRIMARY KEY,
