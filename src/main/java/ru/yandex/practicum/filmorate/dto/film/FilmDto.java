@@ -4,6 +4,7 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.util.CollectionUtils;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
@@ -31,10 +32,10 @@ public class FilmDto {
     private List<Genre> genres;
 
     public boolean hasGenres() {
-        return ! (genres == null || genres.isEmpty());
+        return !CollectionUtils.isEmpty(genres);
     }
 
     public boolean hasMpa() {
-        return ! (mpa == null);
+        return mpa != null;
     }
 }

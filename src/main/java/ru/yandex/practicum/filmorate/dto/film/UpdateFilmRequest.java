@@ -4,6 +4,7 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.util.CollectionUtils;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
@@ -32,27 +33,27 @@ public class UpdateFilmRequest {
     private List<Genre> genres;
 
     public boolean hasName() {
-        return ! (name == null || name.isBlank());
+        return name != null && !name.isBlank();
     }
 
     public boolean hasDescription() {
-        return ! (description == null || description.isBlank());
+        return description != null && !description.isBlank();
     }
 
     public boolean hasReleaseDate() {
-        return ! (releaseDate == null);
+        return releaseDate != null;
     }
 
     public boolean hasDuration() {
-        return ! (duration == null);
+        return duration != null;
     }
 
     public boolean hasGenres() {
-        return ! (genres == null || genres.isEmpty());
+        return !CollectionUtils.isEmpty(genres);
     }
 
     public boolean hasMpa() {
-        return ! (mpa == null);
+        return mpa != null;
     }
 
 }

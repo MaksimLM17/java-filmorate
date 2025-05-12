@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
@@ -18,6 +19,7 @@ public class UserService {
     private final UserStorage userStorage;
     private final UserMapper userMapper;
 
+    @Autowired
     public UserService(@Qualifier("userStorageDb") UserStorage userStorage, UserMapper userMapper) {
         this.userStorage = userStorage;
         this.userMapper = userMapper;

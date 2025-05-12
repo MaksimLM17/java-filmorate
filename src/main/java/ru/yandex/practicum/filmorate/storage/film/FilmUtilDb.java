@@ -19,7 +19,12 @@ public class FilmUtilDb {
     protected final JdbcTemplate jdbcTemplate;
     protected final FilmRowMapper filmRowMapper;
 
-    protected static final String FIND_ALL_QUERY = "SELECT * FROM \"Films\"";
+    protected static final String FIND_ALL_QUERY = "SELECT " +
+            "\"F\".\"Film_id\", \"F\".\"Film_name\", \"F\".\"Film_description\", " +
+            "\"F\".\"Film_release_date\", \"F\".\"Film_duration\", " +
+            "\"M\".\"Mpa_id\", \"M\".\"Mpa_name\" " +
+            "FROM \"Films\" AS \"F\" " +
+            "LEFT JOIN \"Mpa\" AS \"M\" ON \"F\".\"Mpa_id\" = \"M\".\"Mpa_id\"";
 
     protected static final String INSERT_FILM_QUERY = "INSERT INTO \"Films\"(\"Film_name\", \"Film_description\", " +
             "\"Film_release_date\", \"Film_duration\", \"Mpa_id\") VALUES(?,?,?,?,?)";
@@ -32,12 +37,23 @@ public class FilmUtilDb {
 
     protected static final String DELETE_GENRE_FILM_QUERY = "DELETE FROM \"Genre_film\" WHERE \"Film_id\" = ?";
 
-    protected static final String FIND_FILM_BY_ID = "SELECT * FROM \"Films\" WHERE \"Film_id\" = ?";
+    protected static final String FIND_FILM_BY_ID = "SELECT \"F\".\"Film_id\", \"F\".\"Film_name\", \"F\".\"Film_description\", " +
+            "\"F\".\"Film_release_date\", \"F\".\"Film_duration\", \"M\".\"Mpa_id\", \"M\".\"Mpa_name\" " +
+            "FROM \"Films\" AS \"F\" " +
+            "LEFT JOIN \"Mpa\" AS \"M\" ON \"F\".\"Mpa_id\" = \"M\".\"Mpa_id\" " +
+            "WHERE \"F\".\"Film_id\" = ?";
     protected static final String ADD_LIKE_FILM_QUERY = "INSERT INTO \"Likes\"(\"Film_id\", \"User_id\") VALUES(?,?)";
     protected static final String DELETE_LIKE_FILM_QUERY = "DELETE FROM \"Likes\" WHERE \"Film_id\" = ? AND \"User_id\" = ?";
-    protected static final String FIND_POPULAR_FILM_QUERY = "SELECT \"F\".* FROM \"Films\" AS \"F\" JOIN (SELECT \"Film_id\"," +
+
+
+
+    protected static final String FIND_POPULAR_FILM_QUERY = "SELECT \"F\".\"Film_id\", \"F\".\"Film_name\"," +
+            " \"F\".\"Film_description\", \"F\".\"Film_release_date\", \"F\".\"Film_duration\"," +
+            " \"M\".\"Mpa_id\", \"M\".\"Mpa_name\" " +
+            " FROM \"Films\" AS \"F\" LEFT JOIN (SELECT \"Film_id\"," +
             " COUNT(\"User_id\") AS \"like_count\" FROM \"Likes\" GROUP BY \"Film_id\") AS \"L\" " +
             "ON \"F\".\"Film_id\" = \"L\".\"Film_id\"" +
+            " LEFT JOIN \"Mpa\" AS \"M\" ON \"F\".\"Mpa_id\" = \"M\".\"Mpa_id\" " +
             " ORDER BY \"L\".\"like_count\" DESC LIMIT ?";
 
     protected Integer insert(Object... params) {

@@ -21,7 +21,6 @@ public class FilmRowMapper implements RowMapper<Film> {
 
     private final JdbcTemplate jdbcTemplate;
     private final GenreRowMapper genreRowMapper;
-    private final MpaRowMapper mpaRowMapper;
 
     @Override
     public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -33,7 +32,10 @@ public class FilmRowMapper implements RowMapper<Film> {
         Timestamp releaseDate = rs.getTimestamp("Film_release_date");
         film.setReleaseDate(LocalDate.from(releaseDate.toLocalDateTime()));
         film.setDuration(rs.getInt("Film_duration"));
-        film.setMpa(getMpaId(film.getId()));
+        Mpa mpa = new Mpa();
+        mpa.setName(rs.getString("Mpa_name"));
+        mpa.setId(rs.getInt("Mpa_id"));
+        film.setMpa(mpa);
         film.setGenres(getGenresId(film.getId()));
 
         return film;
@@ -44,11 +46,5 @@ public class FilmRowMapper implements RowMapper<Film> {
                 " JOIN \"Genre_film\" ON \"Genres\".\"Genre_id\" = \"Genre_film\".\"Genre_id\"" +
                 " WHERE \"Genre_film\".\"Film_id\" = ?";
         return jdbcTemplate.query(query, genreRowMapper, filmId);
-    }
-
-    private Mpa getMpaId(Integer filmId) {
-        String query = "SELECT * FROM \"Mpa\" JOIN \"Films\" ON \"Mpa\".\"Mpa_id\" = \"Films\".\"Mpa_id\"" +
-                " WHERE \"Film_id\" = ?";
-        return jdbcTemplate.queryForObject(query, mpaRowMapper, filmId);
     }
 }
