@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.mappers.FilmExtractorMapper;
 import ru.yandex.practicum.filmorate.storage.mappers.FilmRowMapper;
 
 import java.util.Collection;
@@ -13,13 +14,17 @@ import java.util.Collection;
 @Slf4j
 public class FilmStorageDb extends FilmUtilDb implements FilmStorage  {
 
-    public FilmStorageDb(JdbcTemplate jdbcTemplate, FilmRowMapper filmRowMapper) {
+    private final FilmExtractorMapper filmExtractorMapper;
+
+    public FilmStorageDb(JdbcTemplate jdbcTemplate, FilmRowMapper filmRowMapper,
+                         FilmExtractorMapper filmExtractorMapper) {
         super(jdbcTemplate, filmRowMapper);
+        this.filmExtractorMapper = filmExtractorMapper;
     }
 
     @Override
     public Collection<Film> getAll() {
-        return jdbcTemplate.query(FIND_ALL_QUERY, filmRowMapper);
+        return jdbcTemplate.query(FIND_ALL_QUERY, filmExtractorMapper);
     }
 
     @Override
