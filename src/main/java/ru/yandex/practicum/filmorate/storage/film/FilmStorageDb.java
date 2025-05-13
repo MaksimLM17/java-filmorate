@@ -24,7 +24,7 @@ public class FilmStorageDb extends FilmUtilDb implements FilmStorage  {
 
     @Override
     public Collection<Film> getAll() {
-        return jdbcTemplate.query(FIND_ALL_QUERY, filmExtractorMapper);
+        return jdbcTemplate.query(FIND_ALL_FILM_QUERY, filmExtractorMapper);
     }
 
     @Override

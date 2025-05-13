@@ -38,17 +38,29 @@ public class FilmExtractorMapper implements ResultSetExtractor<List<Film>> {
                 Integer duration = rs.getInt("Film_duration");
                 Integer mpaId = rs.getInt("Mpa_id");
                 String mpaName = rs.getString("Mpa_name");
-                Integer genreId = rs.getInt("Genre_id");
-                String genreName = rs.getString("Genre_name");
                 Mpa mpa = Mpa.builder().id(mpaId).name(mpaName).build();
-                Genre genre = Genre.builder().id(genreId).name(genreName).build();
+                String genreNames = rs.getString("genres");
                 List<Genre> genres = new ArrayList<>();
-                genres.add(genre);
-                Film film = Film.builder().id(id).name(name).description(description).releaseDate(releaseDate).duration(duration)
-                        .mpa(mpa).genres(genres).build();
+
+                if (genreNames != null) {
+                    String[] genreNameArray = genreNames.split(", ");
+                    for (String genreName : genreNameArray) {
+                        Genre genre = Genre.builder().name(genreName).build();
+                        genres.add(genre);
+                    }
+                }
+
+                Film film = Film.builder()
+                        .id(id)
+                        .name(name)
+                        .description(description)
+                        .releaseDate(releaseDate)
+                        .duration(duration)
+                        .mpa(mpa)
+                        .genres(genres)
+                        .build();
                 films.put(id, film);
             }
-
         }
         return new ArrayList<>(films.values());
     }

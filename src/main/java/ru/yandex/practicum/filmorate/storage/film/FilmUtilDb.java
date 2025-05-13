@@ -19,15 +19,18 @@ public class FilmUtilDb {
     protected final JdbcTemplate jdbcTemplate;
     protected final FilmRowMapper filmRowMapper;
 
-    protected static final String FIND_ALL_QUERY = "SELECT " +
+    protected static final String FIND_ALL_FILM_QUERY = "SELECT " +
             "\"F\".\"Film_id\", \"F\".\"Film_name\", \"F\".\"Film_description\", " +
             "\"F\".\"Film_release_date\", \"F\".\"Film_duration\", " +
             "\"M\".\"Mpa_id\", \"M\".\"Mpa_name\", " +
-            "\"G\".\"Genre_id\", \"G\".\"Genre_name\" " +
+            "STRING_AGG(\"G\".\"Genre_name\", ', ') AS \"genres\" " +
             "FROM \"Films\" AS \"F\" " +
             "LEFT JOIN \"Mpa\" AS \"M\" ON \"F\".\"Mpa_id\" = \"M\".\"Mpa_id\" " +
             "LEFT JOIN \"Genre_film\" AS \"GF\" ON \"F\".\"Film_id\" = \"GF\".\"Film_id\" " +
-            "LEFT JOIN \"Genres\" AS \"G\" ON \"GF\".\"Genre_id\" = \"G\".\"Genre_id\"";
+            "LEFT JOIN \"Genres\" AS \"G\" ON \"GF\".\"Genre_id\" = \"G\".\"Genre_id\" " +
+            "GROUP BY \"F\".\"Film_id\", \"F\".\"Film_name\", \"F\".\"Film_description\", " +
+            "\"F\".\"Film_release_date\", \"F\".\"Film_duration\", " +
+            "\"M\".\"Mpa_id\", \"M\".\"Mpa_name\"";
 
     protected static final String INSERT_FILM_QUERY = "INSERT INTO \"Films\"(\"Film_name\", \"Film_description\", " +
             "\"Film_release_date\", \"Film_duration\", \"Mpa_id\") VALUES(?,?,?,?,?)";

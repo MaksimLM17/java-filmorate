@@ -17,7 +17,7 @@ public class UserUtilDb {
     protected final JdbcTemplate jdbcTemplate;
     protected final UserRowMapper userRowMapper;
 
-    protected static final String FIND_USERS_QUERY = "SELECT * FROM \"Users\"";
+    protected static final String FIND_ALL_USER_QUERY = "SELECT * FROM \"Users\"";
     protected static final String CREATE_USER_QUERY = "INSERT INTO \"Users\"(\"Login\", \"Username\", \"Email\", " +
             "\"Birthday\") VALUES (?,?,?,?)";
     protected static final String UPDATE_USER_QUERY = "UPDATE \"Users\" SET \"Email\" = ?, \"Login\" = ?, \"Username\" = ?," +

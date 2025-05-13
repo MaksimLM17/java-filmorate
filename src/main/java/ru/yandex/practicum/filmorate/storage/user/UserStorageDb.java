@@ -22,7 +22,7 @@ public class UserStorageDb extends UserUtilDb implements UserStorage {
 
     @Override
     public Collection<User> getAll() {
-        return jdbcTemplate.query(FIND_USERS_QUERY, userRowMapper);
+        return jdbcTemplate.query(FIND_ALL_USER_QUERY, userRowMapper);
     }
 
     @Override
