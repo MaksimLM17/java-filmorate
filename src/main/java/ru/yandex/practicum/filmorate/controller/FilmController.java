@@ -4,25 +4,27 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.dto.FilmDto;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.dto.film.FilmDto;
+import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/films")
 @RequiredArgsConstructor
 public class FilmController {
 
-    private final Map<Integer, Film> films = new HashMap<>();
     private final FilmService filmService;
 
     @GetMapping
     public Collection<FilmDto> getAll() {
         return filmService.getAll();
+    }
+
+    @GetMapping("/{id}")
+    public FilmDto getById(@PathVariable Integer id) {
+        return filmService.getById(id);
     }
 
     @PostMapping
@@ -32,8 +34,8 @@ public class FilmController {
     }
 
     @PutMapping
-    public FilmDto update(@RequestBody @Valid FilmDto filmDto) {
-        return filmService.update(filmDto);
+    public FilmDto update(@RequestBody @Valid UpdateFilmRequest request) {
+        return filmService.update(request);
     }
 
     @PutMapping("/{id}/like/{userId}")

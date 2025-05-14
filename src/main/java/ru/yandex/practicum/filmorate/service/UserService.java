@@ -1,9 +1,10 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dto.UserDto;
+import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
@@ -14,10 +15,15 @@ import java.util.Collection;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
     private final UserMapper userMapper;
+
+    @Autowired
+    public UserService(@Qualifier("userStorageDb") UserStorage userStorage, UserMapper userMapper) {
+        this.userStorage = userStorage;
+        this.userMapper = userMapper;
+    }
 
     public Collection<UserDto> getAll() {
         log.debug("Получен запрос на получение списка пользователей!");
@@ -40,7 +46,7 @@ public class UserService {
     public UserDto update(UserDto userDto) {
         log.debug("Получен запрос на обновление пользователя с данными: {}", userDto);
         validateUserId(userDto.getId());
-        checkIdInStorage(userDto.getId());
+        checkIdInDb(userDto.getId());
 
         User user = userMapper.convertToEntity(userDto);
         return userMapper.convertToDto(userStorage.update(user));
@@ -86,6 +92,10 @@ public class UserService {
             log.error("В запросе получено некорректное значение id: {} или friendId: {}", id, friendId);
             throw new BadRequestException("Id пользователя не может быть меньше или равно нулю!");
         }
+        if (id.equals(friendId)) {
+            log.error("Пользователь пытается добавить или удалить себя");
+            throw new BadRequestException("Невозможно добавить или удалить самого себя");
+        }
         if (!userStorage.checkUserId(id)) {
             log.error("Не найден пользователь по id: {}", id);
             throw new NotFoundException("Пользователь с id: " + id + " не найден!");
@@ -109,7 +119,7 @@ public class UserService {
         }
     }
 
-    private void checkIdInStorage(Integer id) {
+    private void checkIdInDb(Integer id) {
         if (!userStorage.checkUserId(id)) {
             log.error("Не найден пользователь по id: {}", id);
             throw new NotFoundException("Пользователь с id: " + id + " не найден!");

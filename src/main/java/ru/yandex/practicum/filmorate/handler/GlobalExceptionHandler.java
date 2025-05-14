@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
+import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.model.ErrorResponse;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 
@@ -68,6 +69,12 @@ public class GlobalExceptionHandler {
                 parameterName,parameterValue);
         log.error(errorMessage);
         return ErrorResponse.builder().message(errorMessage).details(e.getMessage()).build();
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleDataBase(InternalServerException e) {
+        return ErrorResponse.builder().message("Ошибка при работе с базой данных").details(e.getMessage()).build();
     }
 
     @ExceptionHandler

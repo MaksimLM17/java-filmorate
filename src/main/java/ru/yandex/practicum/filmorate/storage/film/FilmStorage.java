@@ -19,4 +19,6 @@ public interface FilmStorage {
     public Collection<Film> getPopularFilms(Integer count);
 
     public boolean checkIdStorage(Integer id);
+
+    public Film getById(Integer id);
 }

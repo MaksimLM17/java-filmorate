@@ -12,13 +12,13 @@ public interface UserStorage {
 
     public User update(User user);
 
-    public void addFriend(Integer id, Integer friendId);
+    public void addFriend(Integer userId, Integer friendId);
 
-    public void removeFriend(Integer id, Integer friendId);
+    public void removeFriend(Integer userId, Integer friendId);
 
-    public Collection<User> getUsersFriends(Integer id);
+    public Collection<User> getUsersFriends(Integer userId);
 
-    public Collection<User> getFriendsCommon(Integer id, Integer otherId);
+    public Collection<User> getFriendsCommon(Integer userId, Integer otherId);
 
-    public boolean checkUserId(Integer id);
+    public boolean checkUserId(Integer userId);
 }
